@@ -1,0 +1,357 @@
+/* RESET */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #313338;
+    color: #dbdee1;
+    overflow: hidden;
+    height: 100vh;
+}
+
+.discord-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* 1. PASEK SERWERÓW */
+.server-sidebar {
+    background-color: #1e1f22;
+    width: 72px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 12px;
+    gap: 8px;
+}
+
+.server-icon {
+    width: 48px;
+    height: 48px;
+    background-color: #313338;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #dbdee1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.server-icon:hover, .server-icon.active {
+    border-radius: 30%;
+    background-color: #5865f2;
+    color: white;
+}
+
+.separator {
+    width: 32px;
+    height: 2px;
+    background-color: #35363c;
+    margin: 4px 0;
+}
+
+/* 2. KANAŁY */
+.channels-sidebar {
+    background-color: #2b2d31;
+    width: 240px;
+    display: flex;
+    flex-direction: column;
+}
+
+.server-header {
+    height: 48px;
+    border-bottom: 1px solid #1f2023;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.channels-list {
+    flex: 1;
+    padding: 12px 8px;
+    overflow-y: auto;
+}
+
+.category {
+    font-size: 12px;
+    font-weight: bold;
+    color: #949ba4;
+    margin-top: 16px;
+    margin-bottom: 4px;
+    padding-left: 8px;
+}
+
+.channel {
+    padding: 6px 8px;
+    border-radius: 4px;
+    color: #949ba4;
+    cursor: pointer;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 2px;
+}
+
+.channel:hover {
+    background-color: #35373c;
+    color: #dbdee1;
+}
+
+.channel.active {
+    background-color: #404249;
+    color: white;
+}
+
+/* PROFIL DOLNY */
+.user-profile {
+    background-color: #232428;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    gap: 8px;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    background-color: #5865f2;
+    border-radius: 50%;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.username {
+    font-size: 14px;
+    font-weight: bold;
+    color: #f2f3f5;
+}
+
+.user-tag {
+    font-size: 12px;
+    color: #949ba4;
+}
+
+/* 3. CZAT */
+.chat-area {
+    background-color: #313338;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-header {
+    height: 48px;
+    border-bottom: 1px solid #26272b;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    font-weight: bold;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.message {
+    display: flex;
+    gap: 16px;
+}
+
+.message-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #4e5058;
+    border-radius: 50%;
+}
+
+.message-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.message-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.author-name {
+    font-weight: bold;
+    color: #f2f3f5;
+    font-size: 15px;
+}
+
+.timestamp {
+    font-size: 12px;
+    color: #949ba4;
+}
+
+.message-text {
+    color: #dbdee1;
+    margin-top: 4px;
+}
+
+/* WEJŚCIE TEKSTU */
+.chat-input-area {
+    padding: 0 16px 24px 16px;
+}
+
+.input-container {
+    background-color: #383a40;
+    border-radius: 8px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 16px;
+}
+
+.input-container input {
+    background: none;
+    border: none;
+    flex: 1;
+    color: #dbdee1;
+    font-size: 16px;
+    outline: none;
+}
+
+.input-container i {
+    color: #b5bac1;
+    font-size: 20px;
+}
+
+/* 4. LISTA ONLINE (PRAWY PANEL) */
+.members-sidebar {
+    background-color: #2b2d31;
+    width: 240px;
+    padding: 24px 8px;
+}
+
+.member-group {
+    font-size: 12px;
+    font-weight: bold;
+    color: #949ba4;
+    padding-left: 8px;
+    margin-bottom: 8px;
+}
+
+.member {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 8px;
+    border-radius: 4px;
+}
+
+.member-avatar {
+    width: 32px;
+    height: 32px;
+    background-color: #4e5058;
+    border-radius: 50%;
+}
+
+.member-name {
+    font-size: 14px;
+}
+
+/* ODZNAKI RANG (BADGES) */
+.role-badge {
+    font-size: 9px;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-weight: bold;
+    margin-left: 4px;
+    text-transform: uppercase;
+}
+
+/* Kolory specyficzne dla rang */
+.admin { background-color: rgba(245, 166, 35, 0.15); border: 1px solid #f5a623; color: #f5a623; }
+.admin-color { color: #f5a623; font-weight: bold; }
+
+.gracz { background-color: rgba(35, 165, 90, 0.15); border: 1px solid #23a55a; color: #23a55a; }
+.gracz-color { color: #23a55a; font-weight: bold; }
+
+.kandydat { background-color: rgba(88, 101, 242, 0.15); border: 1px solid #5865f2; color: #5865f2; }
+.kandydat-color { color: #5865f2; font-weight: bold; }
+
+.guest { background-color: rgba(148, 155, 164, 0.15); border: 1px solid #949ba4; color: #949ba4; }
+.guest-color { color: #949ba4; }
+
+/* EKRAN LOGOWANIA */
+.login-overlay {
+    position: fixed;
+    top:0; left:0; width: 100vw; height: 100vh;
+    background-color: #1e1f22;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.login-box {
+    background-color: #313338;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.login-box h2 {
+    color: white;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.login-box input, .login-box select {
+    background-color: #1e1f22;
+    border: 1px solid #111;
+    border-radius: 4px;
+    padding: 10px;
+    color: white;
+    font-size: 16px;
+    outline: none;
+}
+
+.login-box label {
+    color: #949ba4;
+    font-size: 13px;
+}
+
+.btn {
+    background-color: #5865f2;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn:hover {
+    background-color: #4752c4;
+}
