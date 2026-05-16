@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CraftCube - Discord Web Live</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+    <div id="loginOverlay" class="login-overlay">
+        <div class="login-box">
+            <h2>Dołącz do Discorda</h2>
+            <input type="text" id="nicknameInput" placeholder="Twój nick z Minecrafta..." required>
+            <label for="roleSelect">Wybierz swoją rangę (test permisji):</label>
+            <select id="roleSelect">
+                <option value="GUEST">Gość (Widzi tylko #weryfikacja)</option>
+                <option value="KANDYDAT">Kandydat (Widzi #weryfikacja i #rekrutacja)</option>
+                <option value="GRACZ">Gracz (Widzi #weryfikacja, #ogólny, GaduGadu)</option>
+                <option value="ADMIN">Właściciel / Admin (Widzi WSZYSTKO)</option>
+            </select>
+            <button onclick="connectToServer()" class="btn">Wejdź na czat</button>
+        </div>
+    </div>
+
+    <div class="discord-container" style="display: none;" id="appContainer">
+        
+        <div class="server-sidebar">
+            <div class="server-icon active"><i class="fa-solid fa-cube"></i></div>
+            <div class="separator"></div>
+            <div class="server-icon add-server"><i class="fa-solid fa-plus"></i></div>
+        </div>
+
+        <div class="channels-sidebar">
+            <div class="server-header">
+                <h3>CraftCube.pl</h3>
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            
+            <div class="channels-list" id="channelsList">
+                </div>
+
+            <div class="user-profile">
+                <div class="user-avatar"></div>
+                <div class="user-info">
+                    <span class="username" id="myUsername">Nick</span>
+                    <span class="user-tag" id="myRole">Rola</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-area">
+            <div class="chat-header">
+                <h4 id="currentChannelName"><i class="fa-solid fa-hashtag"></i> weryfikacja</h4>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                </div>
+
+            <div class="chat-input-area" id="inputArea">
+                <div class="input-container">
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <input type="text" id="messageInput" placeholder="Napisz..." onkeypress="handleKeyPress(event)">
+                    <i class="fa-solid fa-face-smile"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="members-sidebar">
+            <div class="member-group">UŻYTKOWNICY ONLINE</div>
+            <div id="onlineMembersList">
+                </div>
+        </div>
+
+    </div>
+
+    <script>
+        const socket = io();
+        let myNick = "";
+        let myCurrentRole = "GUEST";
+        let activeChannelId = "weryfikacja";
+
+        // Lokalna baza wiadomości dla każdego kanału
+        const messagesDatabase = {};
+
+        function connectToServer() {
+            const nickInput = document.getElementById('nicknameInput').value.trim();
+            const roleSelect = document.getElementById('roleSelect').value;
+
+            if (nickInput === "") {
+                alert("Wpisz swój nick!");
+                return;
+            }
+
+            myNick = nickInput;
+            myCurrentRole = roleSelect;
+
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'flex';
+            
+            document.getElementById('myUsername').innerText = myNick;
+            document.getElementById('myRole').innerText = `Rola: ${myCurrentRole}`;
+
+            // Wysyłamy dane logowania do serwera
+            socket.emit('join', { username: myNick, role: myCurrentRole });
+        }
+
+        // Serwer odsyła listę dozwolonych kanałów dla naszej rangi
+        socket.on('loadChannels', (allowedChannels) => {
+            const listContainer = document.getElementById('channelsList');
+            listContainer.innerHTML = "";
+
+            let lastType = "";
+            allowedChannels.forEach(chan => {
+                // Dodawanie nagłówka kategorii (TEKSTOWE / GŁOSOWE)
+                if(chan.type !== lastType) {
+                    const catDiv = document.createElement('div');
+                    catDiv.className = 'category';
+                    catDiv.innerText = chan.type === 'text' ? 'KANAŁY TEKSTOWE' : 'KANAŁY GŁOSOWE';
+                    listContainer.appendChild(catDiv);
+                    lastType = chan.type;
+                }
+
+                // Dodawanie pojedynczego kanału
+                const chanDiv = document.createElement('div');
+                chanDiv.className = `channel ${chan.id === activeChannelId ? 'active' : ''}`;
+                const icon = chan.type === 'text' ? 'fa-hashtag' : 'fa-volume-high';
+                chanDiv.innerHTML = `<i class="fa-solid ${icon}"></i> ${chan.name}`;
+                chanDiv.onclick = () => selectChannel(chan.id, chan.name);
+                
+                listContainer.appendChild(chanDiv);
+            });
+        });
+
+        function selectChannel(id, name) {
+            activeChannelId = id;
+            document.getElementById('currentChannelName').innerHTML = `<i class="fa-solid fa-hashtag"></i> ${name}`;
+            
+            // Wymuszamy odświeżenie klas CSS "active" na liście kanałów
+            socket.emit('join', { username: myNick, role: myCurrentRole });
+
+            renderMessages();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                const input = document.getElementById('messageInput');
+                const text = input.value.trim();
+                if (text !== '') {
+                    // Wiadomość leci do serwera
+                    socket.emit('chatMessage', { channelId: activeChannelId, text: text });
+                    input.value = '';
+                }
+            }
+        }
+
+        // Odbiór wiadomości od kogokolwiek i zapisanie jej
+        socket.on('newMessage', (msg) => {
+            if (!messagesDatabase[msg.channelId]) {
+                messagesDatabase[msg.channelId] = [];
+            }
+            messagesDatabase[msg.channelId].push(msg);
+
+            // Jeśli mamy otwarty ten konkretny kanał, natychmiast go odświeżamy
+            if (msg.channelId === activeChannelId) {
+                renderMessages();
+            }
+        });
+
+        function renderMessages() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = "";
+
+            const list = messagesDatabase[activeChannelId] || [];
+            list.forEach(msg => {
+                const isBot = msg.role === 'BOT';
+                const roleBadge = msg.role !== 'GUEST' ? `<span class="role-badge ${msg.role.toLowerCase()}">${msg.role}</span>` : '';
+                
+                const msgHTML = `
+                    <div class="message">
+                        <div class="message-avatar"></div>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="author-name ${msg.role.toLowerCase()}-color">${msg.username}</span>
+                                ${roleBadge}
+                                <span class="timestamp">${msg.timestamp}</span>
+                            </div>
+                            <div class="message-text">${msg.text}</div>
+                        </div>
+                    </div>
+                `;
+                chatMessages.insertAdjacentHTML('beforeend', msgHTML);
+            });
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll na sam dół
+        }
+
+        // Aktualizacja listy aktywnych użytkowników po prawej stronie
+        socket.on('updateUserList', (users) => {
+            const list = document.getElementById('onlineMembersList');
+            list.innerHTML = "";
+            users.forEach(u => {
+                const div = document.createElement('div');
+                div.className = 'member';
+                div.innerHTML = `
+                    <div class="member-avatar"></div>
+                    <span class="member-name ${u.role.toLowerCase()}-color">${u.username} <span class="role-badge ${u.role.toLowerCase()}">${u.role}</span></span>
+                `;
+                list.appendChild(div);
+            });
+        });
+    </script>
+</body>
+</html>
