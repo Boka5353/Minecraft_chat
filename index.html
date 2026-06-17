@@ -4,24 +4,412 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CraftCube - Discord Web Live</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        /* ==========================================================================
+           1. STYLIZACJA CSS (WYGLĄD DISCORDA)
+           ========================================================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #313338;
+            color: #dbdee1;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .discord-container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* PASEK SERWERÓW (SKRAJNIE LEWY) */
+        .server-sidebar {
+            background-color: #1e1f22;
+            width: 72px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 12px;
+            gap: 8px;
+        }
+
+        .server-icon {
+            width: 48px;
+            height: 48px;
+            background-color: #313338;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #dbdee1;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .server-icon:hover, .server-icon.active {
+            border-radius: 30%;
+            background-color: #5865f2;
+            color: white;
+        }
+
+        .separator {
+            width: 32px;
+            height: 2px;
+            background-color: #35363c;
+            margin: 4px 0;
+        }
+
+        /* PASEK KANAŁÓW (LEWY) */
+        .channels-sidebar {
+            background-color: #2b2d31;
+            width: 240px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .server-header {
+            height: 48px;
+            border-bottom: 1px solid #1f2023;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            font-weight: bold;
+            font-size: 15px;
+            color: white;
+        }
+
+        .channels-list {
+            flex: 1;
+            padding: 12px 8px;
+            overflow-y: auto;
+        }
+
+        .category {
+            font-size: 12px;
+            font-weight: bold;
+            color: #949ba4;
+            margin-top: 16px;
+            margin-bottom: 4px;
+            padding-left: 8px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .channel {
+            padding: 6px 8px;
+            border-radius: 4px;
+            color: #949ba4;
+            cursor: pointer;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 2px;
+        }
+
+        .channel:hover {
+            background-color: #35373c;
+            color: #dbdee1;
+        }
+
+        .channel.active {
+            background-color: #404249;
+            color: white;
+        }
+
+        /* PROFIL UŻYTKOWNIKA (DOLNY LEWY) */
+        .user-profile {
+            background-color: #232428;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            gap: 8px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background-color: #5865f2;
+            border-radius: 50%;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .username {
+            font-size: 14px;
+            font-weight: bold;
+            color: #f2f3f5;
+        }
+
+        .user-tag {
+            font-size: 12px;
+            color: #949ba4;
+        }
+
+        /* OKNO CZATU (ŚRODEK) */
+        .chat-area {
+            background-color: #313338;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            height: 48px;
+            border-bottom: 1px solid #26272b;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            display: flex;
+            gap: 16px;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: #4e5058;
+            border-radius: 50%;
+        }
+
+        .message-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .author-name {
+            font-weight: bold;
+            color: #f2f3f5;
+            font-size: 15px;
+        }
+
+        .timestamp {
+            font-size: 12px;
+            color: #949ba4;
+        }
+
+        .message-text {
+            color: #dbdee1;
+            margin-top: 4px;
+        }
+
+        /* POLE WPISYWANIA WIADOMOŚCI */
+        .chat-input-area {
+            padding: 0 16px 24px 16px;
+        }
+
+        .input-container {
+            background-color: #383a40;
+            border-radius: 8px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 16px;
+        }
+
+        .input-container input {
+            background: none;
+            border: none;
+            flex: 1;
+            color: #dbdee1;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .input-container i {
+            color: #b5bac1;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        /* LISTA GRACZY (PRAWA STRONA) */
+        .members-sidebar {
+            background-color: #2b2d31;
+            width: 240px;
+            padding: 24px 8px;
+            overflow-y: auto;
+        }
+
+        .member-group {
+            font-size: 12px;
+            font-weight: bold;
+            color: #949ba4;
+            padding-left: 8px;
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }
+
+        .member {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .member:hover {
+            background-color: #35373c;
+        }
+
+        .member-avatar {
+            width: 32px;
+            height: 32px;
+            background-color: #4e5058;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        /* Kropka statusu (dostępny/nie przeszkadzać) */
+        .member-avatar::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 10px;
+            height: 10px;
+            background-color: #23a55a;
+            border: 2px solid #2b2d31;
+            border-radius: 50%;
+        }
+
+        .member-avatar.dnd::after {
+            background-color: #f23f43;
+        }
+
+        .member-name {
+            font-size: 14px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ODZNAKI RANG (BADGES) */
+        .role-badge {
+            font-size: 9px;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-left: 4px;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        /* Style Kolorystyczne dla Rang ze Screenów */
+        .admin { background-color: rgba(245, 166, 35, 0.15); border: 1px solid #f5a623; color: #f5a623; }
+        .admin-color { color: #f5a623 !important; }
+
+        .gracz { background-color: rgba(35, 165, 90, 0.15); border: 1px solid #23a55a; color: #23a55a; }
+        .gracz-color { color: #23a55a !important; }
+
+        .guest { background-color: rgba(148, 155, 164, 0.15); border: 1px solid #949ba4; color: #949ba4; }
+        .guest-color { color: #949ba4 !important; }
+
+        /* OKNO LOGOWANIA (OVERLAY) */
+        .login-overlay {
+            position: fixed;
+            top:0; left:0; width: 100vw; height: 100vh;
+            background-color: #1e1f22;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .login-box {
+            background-color: #313338;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .login-box h2 {
+            color: white;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .login-box input {
+            background-color: #1e1f22;
+            border: 1px solid #111;
+            border-radius: 4px;
+            padding: 12px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            width: 100%;
+        }
+
+        .login-box input:focus {
+            border-color: #5865f2;
+        }
+
+        .btn {
+            background-color: #5865f2;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #4752c4;
+        }
+    </style>
 </head>
 <body>
 
     <div id="loginOverlay" class="login-overlay">
         <div class="login-box">
-            <h2>Dołącz do Discorda</h2>
-            <input type="text" id="nicknameInput" placeholder="Twój nick z Minecrafta..." required>
-            <label for="roleSelect">Wybierz swoją rangę (test permisji):</label>
-            <select id="roleSelect">
-                <option value="GUEST">Gość (Widzi tylko #weryfikacja)</option>
-                <option value="KANDYDAT">Kandydat (Widzi #weryfikacja i #rekrutacja)</option>
-                <option value="GRACZ">Gracz (Widzi #weryfikacja, #ogólny, GaduGadu)</option>
-                <option value="ADMIN">Właściciel / Admin (Widzi WSZYSTKO)</option>
-            </select>
-            <button onclick="connectToServer()" class="btn">Wejdź na czat</button>
+            <h2>Zaloguj się do CraftCube</h2>
+            <p style="color: #949ba4; font-size: 13px; text-align: center; margin-bottom: 10px;">
+                Konta testowe do wpisania:<br>
+                Admin: <b>boka</b> / hasło: <b>123</b><br>
+                Gracz: <b>kamil</b> / hasło: <b>xyz</b>
+            </p>
+            <input type="text" id="usernameInput" placeholder="Nazwa użytkownika (Login)..." required>
+            <input type="password" id="passwordInput" placeholder="Hasło..." required>
+            <button onclick="checkLogin()" class="btn">Zaloguj się</button>
         </div>
     </div>
 
@@ -35,7 +423,7 @@
 
         <div class="channels-sidebar">
             <div class="server-header">
-                <h3>CraftCube.pl</h3>
+                <h3>CRAFTCUBE.PL</h3>
                 <i class="fa-solid fa-chevron-down"></i>
             </div>
             
@@ -53,7 +441,7 @@
 
         <div class="chat-area">
             <div class="chat-header">
-                <h4 id="currentChannelName"><i class="fa-solid fa-hashtag"></i> weryfikacja</h4>
+                <h4 id="currentChannelName"><i class="fa-solid fa-hashtag"></i> weryfikacja-odbierz-rangę</h4>
             </div>
             
             <div class="chat-messages" id="chatMessages">
@@ -68,79 +456,115 @@
             </div>
         </div>
 
-        <div class="members-sidebar">
-            <div class="member-group">UŻYTKOWNICY ONLINE</div>
-            <div id="onlineMembersList">
-                </div>
-        </div>
+        <div class="members-sidebar" id="onlineMembersList">
+            </div>
 
     </div>
 
     <script>
-        const socket = io();
         let myNick = "";
         let myCurrentRole = "GUEST";
         let activeChannelId = "weryfikacja";
 
-        // Lokalna baza wiadomości dla każdego kanału
+        // Tymczasowa lokalna tablica na wiadomości wysłane w sesji
         const messagesDatabase = {};
 
-        function connectToServer() {
-            const nickInput = document.getElementById('nicknameInput').value.trim();
-            const roleSelect = document.getElementById('roleSelect').value;
+        // 🔐 BAZA KONT UŻYTKOWNIKÓW Z TWOJEGO SERWERA
+        const usersDatabase = {
+            "boka":  { password: "123", role: "ADMIN", actualName: "Boka 👑 GG" },
+            "seba":  { password: "321", role: "ADMIN", actualName: "Owner_Seba" },
+            "kamil": { password: "xyz", role: "GRACZ", actualName: "Kamilox_33" },
+            "gosc":  { password: "abc", role: "GUEST", actualName: "NowyGracz" }
+        };
 
-            if (nickInput === "") {
-                alert("Wpisz swój nick!");
-                return;
-            }
-
-            myNick = nickInput;
-            myCurrentRole = roleSelect;
-
-            document.getElementById('loginOverlay').style.display = 'none';
-            document.getElementById('appContainer').style.display = 'flex';
+        // 📋 DOKŁADNA LISTA KANAŁÓW ODZWIERCIEDLAJĄCA TWOJE SCREENY
+        const mockChannels = [
+            // Kategoria: INFORMACJE
+            { id: 'weryfikacja', name: 'weryfikacja-odbierz-rangę', type: 'text', category: 'INFORMACJE', roleRequired: 'GUEST' },
+            { id: 'ogloszenia', name: '📢 ogłoszenia 📢', type: 'text', category: 'INFORMACJE', roleRequired: 'GUEST' },
+            { id: 'rekru', name: 'rekru ➕ 👑', type: 'text', category: 'INFORMACJE', roleRequired: 'GRACZ' },
             
-            document.getElementById('myUsername').innerText = myNick;
-            document.getElementById('myRole').innerText = `Rola: ${myCurrentRole}`;
+            // Kategoria: LIVE-STREAM
+            { id: 'live', name: 'LIVE', type: 'voice', category: 'LIVE-STREAM', roleRequired: 'GRACZ' },
+            { id: 'poczekalnia', name: 'POCZEKALNIA', type: 'voice', category: 'LIVE-STREAM', roleRequired: 'GRACZ' },
+            { id: 'gartic', name: '🔴 Gartic phone', type: 'voice', category: 'LIVE-STREAM', roleRequired: 'GRACZ' },
+            
+            // Kategoria: SUPPORT
+            { id: 'pomoc_techniczna', name: 'pomoc-techniczna', type: 'text', category: 'SUPPORT', roleRequired: 'GRACZ' },
+            { id: 'bany_muty', name: 'bany-muty', type: 'text', category: 'SUPPORT', roleRequired: 'ADMIN' },
+            { id: 'stworz_ticket', name: '📇 stwórz-ticket', type: 'text', category: 'SUPPORT', roleRequired: 'GRACZ' },
+            { id: 'pomoc1', name: '📢 Pomoc 1', type: 'voice', category: 'SUPPORT', roleRequired: 'GRACZ' },
+            { id: 'pomoc2', name: '📢 Pomoc 2', type: 'voice', category: 'SUPPORT', roleRequired: 'GRACZ' }
+        ];
 
-            // Wysyłamy dane logowania do serwera
-            socket.emit('join', { username: myNick, role: myCurrentRole });
+        // System sprawdzania loginu i hasła
+        function checkLogin() {
+            const userIn = document.getElementById('usernameInput').value.trim().toLowerCase();
+            const passIn = document.getElementById('passwordInput').value;
+
+            if (usersDatabase[userIn]) {
+                if (usersDatabase[userIn].password === passIn) {
+                    myNick = usersDatabase[userIn].actualName;
+                    myCurrentRole = usersDatabase[userIn].role;
+
+                    // Przełączanie widoków z logowania do Discorda
+                    document.getElementById('loginOverlay').style.display = 'none';
+                    document.getElementById('appContainer').style.display = 'flex';
+                    
+                    document.getElementById('myUsername').innerText = myNick.split(' ')[0];
+                    document.getElementById('myRole').innerText = `Rola: ${myCurrentRole}`;
+
+                    // Ładowanie spersonalizowanych kanałów oraz botów
+                    loadMockChannels();
+                    updateMockUsers();
+                    
+                    // Automatyczne wejście na kanał powitalny
+                    selectChannel('weryfikacja', 'weryfikacja-odbierz-rangę');
+                } else {
+                    alert("❌ Niepoprawne hasło!");
+                }
+            } else {
+                alert("❌ Taki użytkownik nie istnieje!");
+            }
         }
 
-        // Serwer odsyła listę dozwolonych kanałów dla naszej rangi
-        socket.on('loadChannels', (allowedChannels) => {
+        // Drzewko ważności rang (ADMIN widzi wszystko, GUEST tylko podstawy)
+        function hasPermission(userRole, requiredRole) {
+            const rolesHierarchy = { 'GUEST': 1, 'GRACZ': 2, 'ADMIN': 3 };
+            return rolesHierarchy[userRole] >= rolesHierarchy[requiredRole];
+        }
+
+        // Renderowanie kanałów podzielonych na kategorie
+        function loadMockChannels() {
             const listContainer = document.getElementById('channelsList');
             listContainer.innerHTML = "";
+            
+            const allowed = mockChannels.filter(c => hasPermission(myCurrentRole, c.roleRequired));
+            let currentCategory = "";
 
-            let lastType = "";
-            allowedChannels.forEach(chan => {
-                // Dodawanie nagłówka kategorii (TEKSTOWE / GŁOSOWE)
-                if(chan.type !== lastType) {
+            allowed.forEach(chan => {
+                if (chan.category !== currentCategory) {
+                    currentCategory = chan.category;
                     const catDiv = document.createElement('div');
                     catDiv.className = 'category';
-                    catDiv.innerText = chan.type === 'text' ? 'KANAŁY TEKSTOWE' : 'KANAŁY GŁOSOWE';
+                    catDiv.innerHTML = `${currentCategory} <i class="fa-solid fa-chevron-down" style="font-size:10px; float:right; margin-top:3px;"></i>`;
                     listContainer.appendChild(catDiv);
-                    lastType = chan.type;
                 }
 
-                // Dodawanie pojedynczego kanału
                 const chanDiv = document.createElement('div');
                 chanDiv.className = `channel ${chan.id === activeChannelId ? 'active' : ''}`;
                 const icon = chan.type === 'text' ? 'fa-hashtag' : 'fa-volume-high';
+                
                 chanDiv.innerHTML = `<i class="fa-solid ${icon}"></i> ${chan.name}`;
                 chanDiv.onclick = () => selectChannel(chan.id, chan.name);
-                
                 listContainer.appendChild(chanDiv);
             });
-        });
+        }
 
         function selectChannel(id, name) {
             activeChannelId = id;
             document.getElementById('currentChannelName').innerHTML = `<i class="fa-solid fa-hashtag"></i> ${name}`;
-            
-            // Wymuszamy odświeżenie klas CSS "active" na liście kanałów
-            socket.emit('join', { username: myNick, role: myCurrentRole });
-
+            loadMockChannels();
             renderMessages();
         }
 
@@ -149,67 +573,11 @@
                 const input = document.getElementById('messageInput');
                 const text = input.value.trim();
                 if (text !== '') {
-                    // Wiadomość leci do serwera
-                    socket.emit('chatMessage', { channelId: activeChannelId, text: text });
-                    input.value = '';
-                }
-            }
-        }
-
-        // Odbiór wiadomości od kogokolwiek i zapisanie jej
-        socket.on('newMessage', (msg) => {
-            if (!messagesDatabase[msg.channelId]) {
-                messagesDatabase[msg.channelId] = [];
-            }
-            messagesDatabase[msg.channelId].push(msg);
-
-            // Jeśli mamy otwarty ten konkretny kanał, natychmiast go odświeżamy
-            if (msg.channelId === activeChannelId) {
-                renderMessages();
-            }
-        });
-
-        function renderMessages() {
-            const chatMessages = document.getElementById('chatMessages');
-            chatMessages.innerHTML = "";
-
-            const list = messagesDatabase[activeChannelId] || [];
-            list.forEach(msg => {
-                const isBot = msg.role === 'BOT';
-                const roleBadge = msg.role !== 'GUEST' ? `<span class="role-badge ${msg.role.toLowerCase()}">${msg.role}</span>` : '';
-                
-                const msgHTML = `
-                    <div class="message">
-                        <div class="message-avatar"></div>
-                        <div class="message-content">
-                            <div class="message-header">
-                                <span class="author-name ${msg.role.toLowerCase()}-color">${msg.username}</span>
-                                ${roleBadge}
-                                <span class="timestamp">${msg.timestamp}</span>
-                            </div>
-                            <div class="message-text">${msg.text}</div>
-                        </div>
-                    </div>
-                `;
-                chatMessages.insertAdjacentHTML('beforeend', msgHTML);
-            });
-            chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll na sam dół
-        }
-
-        // Aktualizacja listy aktywnych użytkowników po prawej stronie
-        socket.on('updateUserList', (users) => {
-            const list = document.getElementById('onlineMembersList');
-            list.innerHTML = "";
-            users.forEach(u => {
-                const div = document.createElement('div');
-                div.className = 'member';
-                div.innerHTML = `
-                    <div class="member-avatar"></div>
-                    <span class="member-name ${u.role.toLowerCase()}-color">${u.username} <span class="role-badge ${u.role.toLowerCase()}">${u.role}</span></span>
-                `;
-                list.appendChild(div);
-            });
-        });
-    </script>
-</body>
-</html>
+                    if (!messagesDatabase[activeChannelId]) messagesDatabase[activeChannelId] = [];
+                    
+                    messagesDatabase[activeChannelId].push({
+                        username: myNick,
+                        role: myCurrentRole,
+                        text: text,
+                        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    });
