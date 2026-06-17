@@ -101,7 +101,6 @@
             margin-bottom: 4px;
             padding-left: 8px;
             text-transform: uppercase;
-            cursor: pointer;
         }
 
         .channel {
@@ -293,7 +292,6 @@
             position: relative;
         }
 
-        /* Kropka statusu (dostępny/nie przeszkadzać) */
         .member-avatar::after {
             content: '';
             position: absolute;
@@ -316,7 +314,6 @@
             flex-direction: column;
         }
 
-        /* ODZNAKI RANG (BADGES) */
         .role-badge {
             font-size: 9px;
             padding: 1px 4px;
@@ -327,20 +324,15 @@
             display: inline-block;
         }
 
-        /* Style Kolorystyczne dla Rang ze Screenów */
-        .admin { background-color: rgba(245, 166, 35, 0.15); border: 1px solid #f5a623; color: #f5a623; }
+        /* Kolory rang użytkowników */
         .admin-color { color: #f5a623 !important; }
-
-        .gracz { background-color: rgba(35, 165, 90, 0.15); border: 1px solid #23a55a; color: #23a55a; }
         .gracz-color { color: #23a55a !important; }
-
-        .guest { background-color: rgba(148, 155, 164, 0.15); border: 1px solid #949ba4; color: #949ba4; }
         .guest-color { color: #949ba4 !important; }
 
         /* OKNO LOGOWANIA (OVERLAY) */
         .login-overlay {
             position: fixed;
-            top:0; left:0; width: 100vw; height: 100vh;
+            top: 0; left: 0; width: 100vw; height: 100vh;
             background-color: #1e1f22;
             display: flex;
             justify-content: center;
@@ -399,28 +391,37 @@
 </head>
 <body>
 
+    <!-- ==========================================================================
+       2. STRUKTURA HTML OKNA LOGOWANIA (POPRAWIONE ID!)
+       ========================================================================== -->
     <div id="loginOverlay" class="login-overlay">
         <div class="login-box">
             <h2>Zaloguj się do CraftCube</h2>
             <p style="color: #949ba4; font-size: 13px; text-align: center; margin-bottom: 10px;">
-                Konta testowe do wpisania:<br>
-                Admin: <b>boka</b> / hasło: <b>123</b><br>
+                Konta testowe:<br>
+                Właściciel: <b>boka</b> / hasło: <b>123</b><br>
                 Gracz: <b>kamil</b> / hasło: <b>xyz</b>
             </p>
+            <!-- Tutaj dodano wymagane id="usernameInput" oraz id="passwordInput" -->
             <input type="text" id="usernameInput" placeholder="Nazwa użytkownika (Login)..." required>
             <input type="password" id="passwordInput" placeholder="Hasło..." required>
             <button onclick="checkLogin()" class="btn">Zaloguj się</button>
         </div>
     </div>
 
+    <!-- ==========================================================================
+       3. STRUKTURA HTML GŁÓWNEGO DISCORDA
+       ========================================================================== -->
     <div class="discord-container" style="display: none;" id="appContainer">
         
+        <!-- Pasek boczny serwerów -->
         <div class="server-sidebar">
             <div class="server-icon active"><i class="fa-solid fa-cube"></i></div>
             <div class="separator"></div>
-            <div class="server-icon add-server"><i class="fa-solid fa-plus"></i></div>
+            <div class="server-icon"><i class="fa-solid fa-plus"></i></div>
         </div>
 
+        <!-- Pasek boczny kanałów -->
         <div class="channels-sidebar">
             <div class="server-header">
                 <h3>CRAFTCUBE.PL</h3>
@@ -428,8 +429,10 @@
             </div>
             
             <div class="channels-list" id="channelsList">
-                </div>
+                <!-- Generowane dynamicznie przez skrypt JS na podstawie screenów -->
+            </div>
 
+            <!-- Profil zalogowanego użytkownika na dole -->
             <div class="user-profile">
                 <div class="user-avatar"></div>
                 <div class="user-info">
@@ -439,15 +442,17 @@
             </div>
         </div>
 
+        <!-- Główna strefa czatu -->
         <div class="chat-area">
             <div class="chat-header">
-                <h4 id="currentChannelName"><i class="fa-solid fa-hashtag"></i> weryfikacja-odbierz-rangę</h4>
+                <h4 id="currentChannelName"><i class="fa-solid fa-hashtag"></i> lewele</h4>
             </div>
             
             <div class="chat-messages" id="chatMessages">
-                </div>
+                <!-- Wiadomości sesji -->
+            </div>
 
-            <div class="chat-input-area" id="inputArea">
+            <div class="chat-input-area">
                 <div class="input-container">
                     <i class="fa-solid fa-circle-plus"></i>
                     <input type="text" id="messageInput" placeholder="Napisz..." onkeypress="handleKeyPress(event)">
@@ -456,48 +461,56 @@
             </div>
         </div>
 
+        <!-- Prawa lista członków oraz botów -->
         <div class="members-sidebar" id="onlineMembersList">
-            </div>
+            <!-- Dynamiczna strefa z botami (MEE6, Dyno, ProtectMe Bot itp.) -->
+        </div>
 
     </div>
 
+    <!-- ==========================================================================
+       4. LOGIKA JAVASCRIPT
+       ========================================================================== -->
     <script>
         let myNick = "";
         let myCurrentRole = "GUEST";
-        let activeChannelId = "weryfikacja";
+        let activeChannelId = "lewele";
 
-        // Tymczasowa lokalna tablica na wiadomości wysłane w sesji
         const messagesDatabase = {};
 
-        // 🔐 BAZA KONT UŻYTKOWNIKÓW Z TWOJEGO SERWERA
+        // Baza użytkowników
         const usersDatabase = {
             "boka":  { password: "123", role: "ADMIN", actualName: "Boka 👑 GG" },
             "seba":  { password: "321", role: "ADMIN", actualName: "Owner_Seba" },
-            "kamil": { password: "xyz", role: "GRACZ", actualName: "Kamilox_33" },
-            "gosc":  { password: "abc", role: "GUEST", actualName: "NowyGracz" }
+            "kamil": { password: "xyz", role: "GRACZ", actualName: "Kamilox_33" }
         };
 
-        // 📋 DOKŁADNA LISTA KANAŁÓW ODZWIERCIEDLAJĄCA TWOJE SCREENY
+        // Kanały odwzorowane bezpośrednio z pliku "Zrzut ekranu 2026-06-17 142052.png" i "Zrzut ekranu 2026-06-17 142023.png"
         const mockChannels = [
-            // Kategoria: INFORMACJE
-            { id: 'weryfikacja', name: 'weryfikacja-odbierz-rangę', type: 'text', category: 'INFORMACJE', roleRequired: 'GUEST' },
-            { id: 'ogloszenia', name: '📢 ogłoszenia 📢', type: 'text', category: 'INFORMACJE', roleRequired: 'GUEST' },
-            { id: 'rekru', name: 'rekru ➕ 👑', type: 'text', category: 'INFORMACJE', roleRequired: 'GRACZ' },
+            { id: 'lewele', name: 'lewele', type: 'text', category: 'OGÓLNE', roleRequired: 'GUEST' },
+            { id: 'ogloszenia', name: '📢 ogłoszenia 📢', type: 'text', category: 'OGÓLNE', roleRequired: 'GUEST' },
+            { id: 'rekru', name: 'rekru ➕ 👑', type: 'text', category: 'OGÓLNE', roleRequired: 'GUEST' },
+            { id: 'max3', name: 'max 3', type: 'voice', category: 'OGÓLNE', roleRequired: 'GUEST' },
             
-            // Kategoria: LIVE-STREAM
-            { id: 'live', name: 'LIVE', type: 'voice', category: 'LIVE-STREAM', roleRequired: 'GRACZ' },
-            { id: 'poczekalnia', name: 'POCZEKALNIA', type: 'voice', category: 'LIVE-STREAM', roleRequired: 'GRACZ' },
-            { id: 'gartic', name: '🔴 Gartic phone', type: 'voice', category: 'LIVE-STREAM', roleRequired: 'GRACZ' },
+            // Kategoria INFORMACJE
+            { id: 'info_ogloszenia', name: 'ogłoszenia', type: 'text', category: 'INFORMACJE', roleRequired: 'GUEST' },
             
-            // Kategoria: SUPPORT
-            { id: 'pomoc_techniczna', name: 'pomoc-techniczna', type: 'text', category: 'SUPPORT', roleRequired: 'GRACZ' },
-            { id: 'bany_muty', name: 'bany-muty', type: 'text', category: 'SUPPORT', roleRequired: 'ADMIN' },
-            { id: 'stworz_ticket', name: '📇 stwórz-ticket', type: 'text', category: 'SUPPORT', roleRequired: 'GRACZ' },
-            { id: 'pomoc1', name: '📢 Pomoc 1', type: 'voice', category: 'SUPPORT', roleRequired: 'GRACZ' },
-            { id: 'pomoc2', name: '📢 Pomoc 2', type: 'voice', category: 'SUPPORT', roleRequired: 'GRACZ' }
+            // Kategoria LIVE-STREAM
+            { id: 'live', name: 'LIVE', type: 'voice', category: 'LIVE-STREAM', roleRequired: 'GUEST' },
+            { id: 'poczekalnia', name: 'POCZEKALNIA', type: 'voice', category: 'LIVE-STREAM', roleRequired: 'GUEST' },
+            { id: 'gartic', name: '🔴 Gartic phone', type: 'voice', category: 'LIVE-STREAM', roleRequired: 'GUEST' },
+            
+            // Kategoria SUPPORT
+            { id: 'pomoc_techniczna', name: 'pomoc-techniczna', type: 'text', category: 'SUPPORT', roleRequired: 'GUEST' },
+            { id: 'bany_muty', name: 'bany-muty', type: 'text', category: 'SUPPORT', roleRequired: 'GUEST' },
+            { id: 'stworz_ticket', name: '📇 stwórz-ticket', type: 'text', category: 'SUPPORT', roleRequired: 'GUEST' },
+            { id: 'pomoc1', name: '📢 Pomoc 1', type: 'voice', category: 'SUPPORT', roleRequired: 'GUEST' },
+            { id: 'pomoc2', name: '📢 Pomoc 2', type: 'voice', category: 'SUPPORT', roleRequired: 'GUEST' },
+            { id: 'pomoc3', name: '📢 pomoc 3', type: 'voice', category: 'SUPPORT', roleRequired: 'GUEST' },
+            { id: 'pomoc4', name: '📢 Pomoc 4', type: 'voice', category: 'SUPPORT', roleRequired: 'GUEST' }
         ];
 
-        // System sprawdzania loginu i hasła
+        // Funkcja logowania wywoływana przez kliknięcie w przycisk
         function checkLogin() {
             const userIn = document.getElementById('usernameInput').value.trim().toLowerCase();
             const passIn = document.getElementById('passwordInput').value;
@@ -507,47 +520,35 @@
                     myNick = usersDatabase[userIn].actualName;
                     myCurrentRole = usersDatabase[userIn].role;
 
-                    // Przełączanie widoków z logowania do Discorda
                     document.getElementById('loginOverlay').style.display = 'none';
                     document.getElementById('appContainer').style.display = 'flex';
                     
                     document.getElementById('myUsername').innerText = myNick.split(' ')[0];
-                    document.getElementById('myRole').innerText = `Rola: ${myCurrentRole}`;
+                    document.getElementById('myRole').innerText = `Ranga: ${myCurrentRole}`;
 
-                    // Ładowanie spersonalizowanych kanałów oraz botów
                     loadMockChannels();
                     updateMockUsers();
-                    
-                    // Automatyczne wejście na kanał powitalny
-                    selectChannel('weryfikacja', 'weryfikacja-odbierz-rangę');
+                    selectChannel('lewele', 'lewele');
                 } else {
                     alert("❌ Niepoprawne hasło!");
                 }
             } else {
-                alert("❌ Taki użytkownik nie istnieje!");
+                alert("❌ Nie znaleziono takiego użytkownika!");
             }
         }
 
-        // Drzewko ważności rang (ADMIN widzi wszystko, GUEST tylko podstawy)
-        function hasPermission(userRole, requiredRole) {
-            const rolesHierarchy = { 'GUEST': 1, 'GRACZ': 2, 'ADMIN': 3 };
-            return rolesHierarchy[userRole] >= rolesHierarchy[requiredRole];
-        }
-
-        // Renderowanie kanałów podzielonych na kategorie
         function loadMockChannels() {
             const listContainer = document.getElementById('channelsList');
             listContainer.innerHTML = "";
             
-            const allowed = mockChannels.filter(c => hasPermission(myCurrentRole, c.roleRequired));
             let currentCategory = "";
 
-            allowed.forEach(chan => {
+            mockChannels.forEach(chan => {
                 if (chan.category !== currentCategory) {
                     currentCategory = chan.category;
                     const catDiv = document.createElement('div');
                     catDiv.className = 'category';
-                    catDiv.innerHTML = `${currentCategory} <i class="fa-solid fa-chevron-down" style="font-size:10px; float:right; margin-top:3px;"></i>`;
+                    catDiv.innerHTML = `${currentCategory}`;
                     listContainer.appendChild(catDiv);
                 }
 
@@ -581,3 +582,56 @@
                         text: text,
                         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                     });
+                    input.value = '';
+                    renderMessages();
+                }
+            }
+        }
+
+        function renderMessages() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = "";
+
+            const list = messagesDatabase[activeChannelId] || [];
+            list.forEach(msg => {
+                const roleBadge = msg.role === 'ADMIN' ? `<span class="role-badge admin-color" style="border: 1px solid #f5a623; background: rgba(245,166,35,0.1);">ADMIN</span>` : '';
+                const msgHTML = `
+                    <div class="message">
+                        <div class="message-avatar"></div>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="author-name ${msg.role === 'ADMIN' ? 'admin-color' : 'gracz-color'}">${msg.username}</span>
+                                ${roleBadge}
+                                <span class="timestamp">Dzisiaj o ${msg.timestamp}</span>
+                            </div>
+                            <div class="message-text">${msg.text}</div>
+                        </div>
+                    </div>`;
+                chatMessages.insertAdjacentHTML('beforeend', msgHTML);
+            });
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Lista botów odtworzona na podstawie pliku "Zrzut ekranu 2026-06-17 142038.png"
+        function updateMockUsers() {
+            const list = document.getElementById('onlineMembersList');
+            list.innerHTML = `
+                <div class="member-group">Wlasciciel — 1</div>
+                <div class="member"><div class="member-avatar" style="background-color: #f5a623;"></div><span class="member-name admin-color">Boka <span class="role-badge" style="background: #f5a623; color: black;">👑 GG</span></span></div>
+                
+                <div class="member-group">Dostępny — 10</div>
+                <div class="member"><div class="member-avatar" style="background-color: #5865f2;"></div><span class="member-name" style="color: #dbdee1;">AdviceBot <span class="role-badge" style="background: #5865f2; color:white;">✓ APL.</span></span></div>
+                <div class="member"><div class="member-avatar" style="background-color: #23a55a;"></div><span class="member-name" style="color: #dbdee1;">boht <span class="role-badge" style="background: #5865f2; color:white;">✓ APL.</span></span></div>
+                <div class="member"><div class="member-avatar" style="background-color: #49c261;"></div><span class="member-name" style="color: #dbdee1;">Dyno <span class="role-badge" style="background: #5865f2; color:white;">✓ APL.</span></span></div>
+                <div class="member"><div class="member-avatar" style="background-color: #00b0f4;"></div><span class="member-name" style="color: #dbdee1;">MEE6 <span class="role-badge" style="background: #5865f2; color:white;">✓ APL.</span></span></div>
+                <div class="member"><div class="member-avatar" style="background-color: #7289da;"></div><span class="member-name" style="color: #dbdee1;">ProBot ✨ <span class="role-badge" style="background: #5865f2; color:white;">✓ APL.</span></span></div>
+                <div class="member"><div class="member-avatar dnd" style="background-color: #f23f43;"></div><span class="member-name" style="color: #dbdee1;">ProtectMe Bot <span class="role-badge" style="background: #5865f2; color:white;">✓ APL.</span></span></div>
+                <div class="member"><div class="member-avatar" style="background-color: #43b581;"></div><span class="member-name" style="color: #dbdee1;">StartIT <span class="role-badge" style="background: #5865f2; color:white;">✓ APL.</span></span></div>
+                <div class="member"><div class="member-avatar dnd" style="background-color: #f23f43;"></div><span class="member-name" style="color: #dbdee1;">TempVoice <span class="role-badge" style="background: #5865f2; color:white;">✓ APL.</span></span></div>
+                <div class="member"><div class="member-avatar" style="background-color: #9b59b6;"></div><span class="member-name" style="color: #dbdee1;">Tickets <span class="role-badge" style="background: #5865f2; color:white;">✓ APL.</span></span></div>
+                <div class="member"><div class="member-avatar" style="background-color: #ff5555;"></div><span class="member-name" style="color: #dbdee1;">UnbelievaBoat <span class="role-badge" style="background: #5865f2; color:white;">✓ APL.</span></span></div>
+            `;
+        }
+    </script>
+</body>
+</html>
