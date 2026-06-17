@@ -7,13 +7,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* ==========================================================================
-           1. STYLIZACJA INTERFEJSU (CSS)
+           1. CSS - STYLIZACJA INTERFEJSU
            ========================================================================== */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
         }
 
         body {
@@ -29,7 +30,7 @@
             width: 100vw;
         }
 
-        /* PASEK IKON SERWERÓW (LEWY SKRAJNY) */
+        /* LEWY PASEK SERWERÓW */
         .server-sidebar {
             background-color: #1e1f22;
             width: 72px;
@@ -38,6 +39,7 @@
             align-items: center;
             padding-top: 12px;
             gap: 8px;
+            flex-shrink: 0;
         }
 
         .server-icon {
@@ -67,12 +69,13 @@
             margin: 4px 0;
         }
 
-        /* PASEK KANAŁÓW BOCHNYCH */
+        /* PASEK BOCZNY KANAŁÓW */
         .channels-sidebar {
             background-color: #2b2d31;
             width: 240px;
             display: flex;
             flex-direction: column;
+            flex-shrink: 0;
         }
 
         .server-header {
@@ -125,7 +128,71 @@
             color: white;
         }
 
-        /* DOLNY PROFIL UŻYTKOWNIKA */
+        .voice-user {
+            padding-left: 28px;
+            font-size: 13px;
+            color: #dcdee1;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+        
+        .voice-user-avatar {
+            width: 18px;
+            height: 18px;
+            background-color: #5865f2;
+            border-radius: 50%;
+        }
+
+        /* PRZYCISK STWÓRZ KANAŁ */
+        .create-channel-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 8px;
+            color: #949ba4;
+            font-size: 14px;
+            cursor: pointer;
+            border-top: 1px solid #35373c;
+            margin-top: auto;
+            font-weight: 500;
+        }
+
+        .create-channel-btn:hover {
+            color: #fff;
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        /* WIDOK POŁĄCZENIA GŁOSOWEGO */
+        .voice-connected-bar {
+            background-color: #232428;
+            border-bottom: 1px solid #3f4147;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .voice-status {
+            color: #23a55a;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .voice-channel-name {
+            color: #b5bac1;
+            font-size: 12px;
+        }
+
+        .voice-actions button {
+            background: none;
+            border: none;
+            color: #f23f43;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
         .user-profile {
             background-color: #232428;
             height: 52px;
@@ -142,23 +209,11 @@
             border-radius: 50%;
         }
 
-        .user-info {
-            display: flex;
-            flex-direction: column;
-        }
+        .user-info { display: flex; flex-direction: column; }
+        .username { font-size: 14px; font-weight: bold; color: #f2f3f5; }
+        .user-tag { font-size: 12px; color: #949ba4; }
 
-        .username {
-            font-size: 14px;
-            font-weight: bold;
-            color: #f2f3f5;
-        }
-
-        .user-tag {
-            font-size: 12px;
-            color: #949ba4;
-        }
-
-        /* OKNO CZATU (ŚRODEK) */
+        /* CZAT GŁÓWNY */
         .chat-area {
             background-color: #313338;
             flex: 1;
@@ -185,48 +240,14 @@
             gap: 16px;
         }
 
-        .message {
-            display: flex;
-            gap: 16px;
-        }
-
-        .message-avatar {
-            width: 40px;
-            height: 40px;
-            background-color: #4e5058;
-            border-radius: 50%;
-        }
-
-        .message-content {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .message-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .author-name {
-            font-weight: bold;
-            color: #f2f3f5;
-            font-size: 15px;
-        }
-
-        .timestamp {
-            font-size: 12px;
-            color: #949ba4;
-        }
-
-        .message-text {
-            color: #dbdee1;
-            margin-top: 4px;
-        }
-
-        .chat-input-area {
-            padding: 0 16px 24px 16px;
-        }
+        .message { display: flex; gap: 16px; }
+        .message-avatar { width: 40px; height: 40px; background-color: #4e5058; border-radius: 50%; }
+        .message-content { display: flex; flex-direction: column; }
+        .message-header { display: flex; align-items: center; gap: 8px; }
+        .author-name { font-weight: bold; color: #f2f3f5; font-size: 15px; }
+        .timestamp { font-size: 12px; color: #949ba4; }
+        .message-text { color: #dbdee1; margin-top: 4px; }
+        .chat-input-area { padding: 0 16px 24px 16px; }
 
         .input-container {
             background-color: #383a40;
@@ -239,26 +260,18 @@
         }
 
         .input-container input {
-            background: none;
-            border: none;
-            flex: 1;
-            color: #dbdee1;
-            font-size: 16px;
-            outline: none;
+            background: none; border: none; flex: 1; color: #dbdee1; font-size: 16px; outline: none;
         }
 
-        .input-container i {
-            color: #b5bac1;
-            font-size: 20px;
-            cursor: pointer;
-        }
+        .input-container i { color: #b5bac1; font-size: 20px; cursor: pointer; }
 
-        /* PRAWA LISTA CZŁONKÓW */
+        /* PRAWA LISTA UŻYTKOWNIKÓW */
         .members-sidebar {
             background-color: #2b2d31;
             width: 240px;
             padding: 24px 8px;
             overflow-y: auto;
+            flex-shrink: 0;
         }
 
         .member-group {
@@ -276,51 +289,68 @@
             gap: 12px;
             padding: 6px 8px;
             border-radius: 4px;
-            cursor: pointer;
+            cursor: context-menu;
         }
 
-        .member:hover {
-            background-color: #35373c;
-        }
-
-        .member-avatar {
-            width: 32px;
-            height: 32px;
-            background-color: #4e5058;
-            border-radius: 50%;
-            position: relative;
-        }
-
-        .member-avatar::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            right: -2px;
-            width: 10px;
-            height: 10px;
-            background-color: #23a55a;
-            border: 2px solid #2b2d31;
-            border-radius: 50%;
-        }
-
-        .member-name {
-            font-size: 14px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .role-badge {
-            font-size: 9px;
-            padding: 1px 4px;
-            border-radius: 3px;
-            font-weight: bold;
-            margin-left: 4px;
-            text-transform: uppercase;
-            display: inline-block;
-        }
+        .member:hover { background-color: #35373c; }
+        .member-avatar { width: 32px; height: 32px; background-color: #4e5058; border-radius: 50%; }
+        .member-name { font-size: 14px; display: flex; align-items: center; width: 100%; justify-content: space-between; }
+        .role-badge { font-size: 9px; padding: 1px 4px; border-radius: 3px; font-weight: bold; text-transform: uppercase; }
 
         .admin-color { color: #f5a623 !important; }
         .gracz-color { color: #23a55a !important; }
+
+        /* ==========================================================================
+           2. SPERSONALIZOWANE MENU KONTEKSTOWE (Zrzut ekranu 2026-06-17 141958_2.png)
+           ========================================================================== */
+        .context-menu {
+            position: fixed;
+            background-color: #111214;
+            color: #b5bac1;
+            border-radius: 4px;
+            width: 220px;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            padding: 6px;
+            display: none;
+            font-size: 13px;
+        }
+
+        .context-item {
+            padding: 6px 8px;
+            border-radius: 2px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .context-item:hover {
+            background-color: #4752c4;
+            color: white;
+        }
+
+        .context-item.danger { color: #f23f43; }
+        .context-item.danger:hover { background-color: #f23f43; color: white; }
+
+        .context-divider {
+            height: 1px;
+            background-color: #1f2023;
+            margin: 4px 0;
+        }
+
+        .slider-container {
+            padding: 6px 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .context-slider {
+            width: 100%;
+            accent-color: #5865f2;
+            cursor: pointer;
+        }
 
         /* NAKŁADKA LOGOWANIA */
         .login-overlay {
@@ -344,64 +374,79 @@
             gap: 16px;
         }
 
-        .login-box h2 {
-            color: white;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-
+        .login-box h2 { color: white; text-align: center; }
         .login-box input {
-            background-color: #1e1f22;
-            border: 1px solid #111;
-            border-radius: 4px;
-            padding: 12px;
-            color: white;
-            font-size: 16px;
-            outline: none;
-            width: 100%;
+            background-color: #1e1f22; border: 1px solid #111; border-radius: 4px;
+            padding: 12px; color: white; font-size: 16px; outline: none; width: 100%;
         }
 
         .btn {
-            background-color: #5865f2;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 4px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            width: 100%;
+            background-color: #5865f2; color: white; border: none; padding: 12px;
+            border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%;
         }
 
-        .btn:hover {
-            background-color: #4752c4;
-        }
+        .btn:hover { background-color: #4752c4; }
     </style>
 </head>
 <body>
 
+    <!-- PANEL LOGOWANIA -->
     <div id="loginOverlay" class="login-overlay">
         <div class="login-box">
             <h2>Zaloguj się do CraftCube</h2>
             <p style="color: #949ba4; font-size: 13px; text-align: center; margin-bottom: 10px;">
-                Wpisz dowolny login i kliknij przycisk! Hasło nie jest sprawdzane.
+                Zaloguj się jako <b>boka</b> lub <b>seba</b> aby uzyskać uprawnienia tworzenia kanałów i moderacji!
             </p>
             <input type="text" id="usernameInput" placeholder="Nazwa użytkownika (Login)..." value="boka">
             <input type="password" id="passwordInput" placeholder="Hasło..." value="123">
-            
             <button type="button" onclick="wejdzDoAplikacji()" class="btn">Zaloguj się</button>
         </div>
     </div>
 
+    <!-- DRUGIE MENU KONTEKSTOWE (Zrzut ekranu 2026-06-17 141958_2.png) -->
+    <div id="userContextMenu" class="context-menu">
+        <div class="context-item">Profil</div>
+        <div class="context-item">Wspominanie</div>
+        <div class="context-item">Wyślij wiadomość</div>
+        <div class="context-item">Dodaj notkę</div>
+        <div class="context-divider"></div>
+        <div class="slider-container">
+            <span>Głośność użytkownika</span>
+            <input type="range" class="context-slider" min="0" max="200" value="100">
+        </div>
+        <div class="context-divider"></div>
+        <div class="context-item">Wycisz <input type="checkbox" style="pointer-events: none;"></div>
+        <div class="context-item">Wycisz panel dźwięków <input type="checkbox" style="pointer-events: none;"></div>
+        <div class="context-item">Wyświetli kod weryfikacji</div>
+        <div class="context-item">Zmiana pseudonimu</div>
+        <div class="context-item">Aplikacje <i class="fa-solid fa-chevron-right" style="font-size:10px;"></i></div>
+        <div class="context-item">Ignoruj</div>
+        <div class="context-item danger" onclick="moderationAction('zablokowany')">Zablokuj</div>
+        <div class="context-divider"></div>
+        <div class="context-item">Role <i class="fa-solid fa-chevron-right" style="font-size:10px;"></i></div>
+        <div class="context-item">Przenieść do <i class="fa-solid fa-chevron-right" style="font-size:10px;"></i></div>
+        <div class="context-divider"></div>
+        <div style="font-size: 11px; padding: 4px 8px; color: #949ba4;">Otwórz w widoku moderatora</div>
+        <div class="context-item">Wyciszenie serwera <input type="checkbox" style="pointer-events: none;"></div>
+        <div class="context-item">Wyłączenie dźwięku na serwerze <input type="checkbox" style="pointer-events: none;"></div>
+        <div class="context-item danger" onclick="moderationAction('rozłaczony z kanału głosowego')">Rozłącz</div>
+        <div class="context-item danger" onclick="moderationAction('wysłany na przerwę')">Wyślij na przerwę</div>
+        <div class="context-item danger" onclick="moderationAction('wyrzucony z serwera')">Wyrzuć Bot / Użytkownika</div>
+        <div class="context-divider"></div>
+        <div class="context-item" style="font-size:11px;">Kopiuj ID użytkownika <i class="fa-solid fa-id-card"></i></div>
+    </div>
+
+    <!-- INTERFEJS DISCORDA -->
     <div class="discord-container" style="display: none;" id="appContainer">
         
+        <!-- Pasek ikon serwerów -->
         <div class="server-sidebar">
             <div class="server-icon active"><i class="fa-solid fa-cube"></i></div>
             <div class="separator"></div>
             <div class="server-icon"><i class="fa-solid fa-plus"></i></div>
         </div>
 
+        <!-- Pasek boczny kanałów -->
         <div class="channels-sidebar">
             <div class="server-header">
                 <h3>CRAFTCUBE.PL</h3>
@@ -409,8 +454,26 @@
             </div>
             
             <div class="channels-list" id="channelsList">
-                </div>
+                <!-- Dynamicznie ładowane kanały -->
+            </div>
 
+            <!-- Przycisk "+ Stwórz Kanał" widoczny dla Adminów -->
+            <div class="create-channel-btn" id="createChannelBtn" onclick="openCreateChannelDialog()" style="display:none;">
+                <i class="fa-solid fa-plus"></i> Stwórz Kanał
+            </div>
+
+            <!-- Połączenie głosowe -->
+            <div class="voice-connected-bar" id="voiceConnectedBar" style="display: none;">
+                <div class="voice-info">
+                    <span class="voice-status"><i class="fa-solid fa-signal"></i> Połączono z głosem</span>
+                    <span class="voice-channel-name" id="connectedVoiceChannelName">Kanał</span>
+                </div>
+                <div class="voice-actions">
+                    <button onclick="disconnectVoice()"><i class="fa-solid fa-phone-slash"></i></button>
+                </div>
+            </div>
+
+            <!-- Profil użytkownika -->
             <div class="user-profile">
                 <div class="user-avatar"></div>
                 <div class="user-info">
@@ -420,13 +483,13 @@
             </div>
         </div>
 
+        <!-- Okno czatu głównego -->
         <div class="chat-area">
             <div class="chat-header">
                 <h4 id="currentChannelName"><i class="fa-solid fa-hashtag"></i> lewele</h4>
             </div>
             
-            <div class="chat-messages" id="chatMessages">
-                </div>
+            <div class="chat-messages" id="chatMessages"></div>
 
             <div class="chat-input-area">
                 <div class="input-container">
@@ -437,61 +500,84 @@
             </div>
         </div>
 
-        <div class="members-sidebar" id="onlineMembersList">
-            </div>
+        <!-- Prawa kolumna członków online -->
+        <div class="members-sidebar" id="onlineMembersList"></div>
 
     </div>
 
+    <!-- LOGIKA I DZIAŁANIE STRONY (JAVASCRIPT) -->
     <script>
         let myNick = "Użytkownik";
         let myCurrentRole = "GRACZ";
         let activeChannelId = "lewele";
+        let currentVoiceChannelId = null;
+        let targetedMemberId = null; // Przechowuje bota/gracza którego kliknięto prawym
 
         const messagesDatabase = {};
 
+        // Pełna baza kanałów odtworzona ze zrzutów ekranu
         const mockChannels = [
             { id: 'lewele', name: 'lewele', type: 'text', category: 'Strefa Główna' },
             { id: 'ogloszenia_gl', name: '📢 ogłoszenia 📢', type: 'text', category: 'Strefa Główna' },
             { id: 'rekru', name: 'rekru ➕ 👑', type: 'text', category: 'Strefa Główna' },
             { id: 'max3', name: 'max 3', type: 'voice', category: 'Strefa Główna' },
-            { id: 'ogloszenia_inf', name: 'ogłoszenia', type: 'text', category: 'INFORMACJE' },
+            { id: 'lobby', name: 'Lobby', type: 'voice', category: 'Strefa Główna' },
+            { id: 'gry', name: 'Gry', type: 'voice', category: 'Strefa Główna' },
+            { id: 'radio', name: 'Radio 24/7', type: 'voice', category: 'Strefa Główna' },
+            { id: 'max2', name: 'max 2', type: 'voice', category: 'Strefa Główna' },
+            { id: 'mc8', name: 'minecraft od 8 do 15', type: 'voice', category: 'Strefa Główna' },
+            { id: 'mc15', name: 'minecraft od 15 do 20', type: 'voice', category: 'Strefa Główna' },
+            { id: 'roblox', name: 'roblox 24/7', type: 'voice', category: 'Strefa Główna' },
             { id: 'live', name: 'LIVE', type: 'voice', category: 'LIVE-STREAM' },
             { id: 'poczekalnia', name: 'POCZEKALNIA', type: 'voice', category: 'LIVE-STREAM' },
-            { id: 'gartic', name: '🔴 Gartic phone', type: 'voice', category: 'LIVE-STREAM' },
-            { id: 'pomoc_techniczna', name: 'pomoc-techniczna', type: 'text', category: 'SUPPORT' },
-            { id: 'bany_muty', name: 'bany-muty', type: 'text', category: 'SUPPORT' },
-            { id: 'stworz_ticket', name: '📇 stwórz-ticket', type: 'text', category: 'Pomoc 13-20' },
             { id: 'pomoc1', name: '📢 Pomoc 1', type: 'voice', category: 'Pomoc 13-20' },
             { id: 'pomoc2', name: '📢 Pomoc 2', type: 'voice', category: 'Pomoc 13-20' },
             { id: 'pomoc3', name: '📢 pomoc 3', type: 'voice', category: 'Pomoc 13-20' },
-            { id: 'pomoc4', name: '📢 Pomoc 4', type: 'voice', category: 'Pomoc 13-20' }
+            { id: 'pomoc4', name: '📢 Pomoc 4', type: 'voice', category: 'Pomoc 13-20' },
+            { id: 'pomoc5', name: '📢 Pomoc 5', type: 'voice', category: 'Pomoc 13-20' },
+            { id: 'sprawdzanie', name: 'na sprawdzanie', type: 'voice', category: 'Pomoc 13-20' },
+            { id: 'sprawy_admin', name: '👑🔴 sprawy-administracja 🔴', type: 'voice', category: 'ADMINISTRACJA' },
+            { id: 'admin_chan', name: '👑🔴 administracja 🔴 👑', type: 'voice', category: 'ADMINISTRACJA' },
+            { id: 'afk', name: 'Afk', type: 'voice', category: 'ADMINISTRACJA' }
         ];
 
-        // TA FUNKCJA URUCHOMI SIĘ BEZ BŁĘDU I PRZEKIERUJE CIĘ DO DISCORDA
+        // Lista członków do testowania moderacji prawym przyciskiem myszy
+        let mockMembers = [
+            { id: 'boka_bot', name: 'Boka', group: 'Właściciel', color: '#f5a623', badge: '👑 GG' },
+            { id: 'bot1', name: 'AdviceBot', group: 'Boty', color: '#5865f2', badge: '✓ APL.' },
+            { id: 'bot2', name: 'ProtectMe Bot', group: 'Boty', color: '#5865f2', badge: '✓ APL.' },
+            { id: 'bot3', name: 'Dyno', group: 'Boty', color: '#5865f2', badge: '✓ APL.' },
+            { id: 'bot4', name: 'MEE6', group: 'Boty', color: '#5865f2', badge: '✓ APL.' },
+            { id: 'bot5', name: 'Tickets', group: 'Boty', color: '#5865f2', badge: '✓ APL.' }
+        ];
+
+        const audioConnect = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-84.wav'); 
+        const audioDisconnect = new Audio('https://assets.mixkit.co/active_storage/sfx/2560/2560-84.wav');
+
         function wejdzDoAplikacji() {
             const userIn = document.getElementById('usernameInput').value.trim();
             
-            // Przypisanie rangi na podstawie wpisanego loginu
             if (userIn.toLowerCase() === 'boka' || userIn.toLowerCase() === 'seba') {
                 myNick = userIn.toLowerCase() === 'boka' ? "Boka 👑 GG" : "Owner_Seba";
                 myCurrentRole = "ADMIN";
+                // Jeśli użytkownik jest adminem, aktywuj przycisk tworzenia kanałów
+                document.getElementById('createChannelBtn').style.display = 'flex';
             } else {
                 myNick = userIn ? userIn : "kamilox33";
                 myCurrentRole = "GRACZ";
+                document.getElementById('createChannelBtn').style.display = 'none';
             }
 
-            // Przełączanie widoku w przeglądarce (Ukryj logowanie, pokaż Discorda)
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('appContainer').style.display = 'flex';
             
-            // Wstawienie danych do profilu na dole ekranu
             document.getElementById('myUsername').innerText = userIn ? userIn : "Gość";
             document.getElementById('myRole').innerText = `Ranga: ${myCurrentRole}`;
 
-            // Ładowanie komponentów aplikacji
             loadMockChannels();
             updateMockUsers();
             selectChannel('lewele', 'lewele');
+            initContextMenuListeners();
         }
 
         function loadMockChannels() {
@@ -510,14 +596,63 @@
                     listContainer.appendChild(catDiv);
                 }
 
+                const channelWrapper = document.createElement('div');
                 const chanDiv = document.createElement('div');
                 chanDiv.className = `channel ${chan.id === activeChannelId ? 'active' : ''}`;
                 const icon = chan.type === 'text' ? 'fa-hashtag' : 'fa-volume-high';
                 
                 chanDiv.innerHTML = `<i class="fa-solid ${icon}"></i> ${chan.name}`;
-                chanDiv.onclick = () => selectChannel(chan.id, chan.name);
-                listContainer.appendChild(chanDiv);
+                
+                chanDiv.onclick = () => {
+                    if(chan.type === 'text') { selectChannel(chan.id, chan.name); } 
+                    else { connectToVoice(chan.id, chan.name); }
+                };
+                
+                channelWrapper.appendChild(chanDiv);
+
+                if (chan.type === 'voice' && currentVoiceChannelId === chan.id) {
+                    const userVoiceDiv = document.createElement('div');
+                    userVoiceDiv.className = 'voice-user';
+                    userVoiceDiv.innerHTML = `<div class="voice-user-avatar"></div> <span class="${myCurrentRole === 'ADMIN' ? 'admin-color' : 'gracz-color'}">${myNick}</span>`;
+                    channelWrapper.appendChild(userVoiceDiv);
+                }
+
+                listContainer.appendChild(channelWrapper);
             });
+        }
+
+        // AKCJA: TWÓRZ KANAŁ (DLA ADMINÓW/WŁAŚCICIELI)
+        function openCreateChannelDialog() {
+            if(myCurrentRole !== 'ADMIN') {
+                alert("Tylko Właściciel lub Admin może zarządzać kanałami!");
+                return;
+            }
+            const name = prompt("Podaj nazwę nowego kanału:");
+            if(!name) return;
+            const type = prompt("Wpisz typ kanału (text / voice):", "text");
+            if(type !== 'text' && type !== 'voice') return;
+
+            const category = prompt("Wpisz kategorię dla kanału (Strefa Główna / INFORMACJE / LIVE-STREAM / SUPPORT / Pomoc 13-20 / ADMINISTRACJA):", "Strefa Główna");
+
+            const newId = 'custom_' + Date.now();
+            mockChannels.push({ id: newId, name: name, type: type, category: category });
+            loadMockChannels();
+        }
+
+        function connectToVoice(id, name) {
+            if (currentVoiceChannelId === id) return;
+            currentVoiceChannelId = id;
+            try { audioConnect.play(); } catch(e){}
+            document.getElementById('voiceConnectedBar').style.display = 'flex';
+            document.getElementById('connectedVoiceChannelName').innerText = `${name} / CRAFTCUBE.PL`;
+            loadMockChannels();
+        }
+
+        function disconnectVoice() {
+            currentVoiceChannelId = null;
+            try { audioDisconnect.play(); } catch(e){}
+            document.getElementById('voiceConnectedBar').style.display = 'none';
+            loadMockChannels();
         }
 
         function selectChannel(id, name) {
@@ -533,11 +668,8 @@
                 const text = input.value.trim();
                 if (text !== '') {
                     if (!messagesDatabase[activeChannelId]) messagesDatabase[activeChannelId] = [];
-                    
                     messagesDatabase[activeChannelId].push({
-                        username: myNick,
-                        role: myCurrentRole,
-                        text: text,
+                        username: myNick, role: myCurrentRole, text: text,
                         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                     });
                     input.value = '';
@@ -557,20 +689,19 @@
                         <h1 style="color: white; font-size: 32px; margin-bottom: 8px;"># Witamy na: # lewele!</h1>
                         <p style="color: #949ba4;">To jest początek kanału # lewele.</p>
                         <div style="border-bottom: 1px solid #3f4147; margin-top: 20px;"></div>
-                    </div>
-                `;
+                    </div>`;
             }
 
             const list = messagesDatabase[activeChannelId] || [];
             list.forEach(msg => {
-                const roleBadge = msg.role === 'ADMIN' ? `<span class="role-badge admin-color" style="border: 1px solid #f5a623; background: rgba(245,166,35,0.1);">ADMIN</span>` : '';
+                const badge = msg.role === 'ADMIN' ? `<span class="role-badge admin-color" style="border: 1px solid #f5a623; background: rgba(245,166,35,0.1);">ADMIN</span>` : '';
                 const msgHTML = `
                     <div class="message">
                         <div class="message-avatar"></div>
                         <div class="message-content">
                             <div class="message-header">
                                 <span class="author-name ${msg.role === 'ADMIN' ? 'admin-color' : 'gracz-color'}">${msg.username}</span>
-                                ${roleBadge}
+                                ${badge}
                                 <span class="timestamp">Dzisiaj o ${msg.timestamp}</span>
                             </div>
                             <div class="message-text">${msg.text}</div>
@@ -584,18 +715,76 @@
         function updateMockUsers() {
             const list = document.getElementById('onlineMembersList');
             if(!list) return;
-            list.innerHTML = `
-                <div class="member-group">Właściciel — 1</div>
-                <div class="member"><div class="member-avatar" style="background-color: #f5a623;"></div><span class="member-name admin-color">Boka <span class="role-badge" style="background: #f5a623; color: black;">👑 GG</span></span></div>
+            list.innerHTML = "";
+
+            const groups = ['Właściciel', 'Boty'];
+            groups.forEach(groupName => {
+                const filtered = mockMembers.filter(m => m.group === groupName);
+                if(filtered.length === 0) return;
+
+                const grpDiv = document.createElement('div');
+                grpDiv.className = 'member-group';
+                grpDiv.innerText = `${groupName} — ${filtered.length}`;
+                list.appendChild(grpDiv);
+
+                filtered.forEach(member => {
+                    const memDiv = document.createElement('div');
+                    memDiv.className = 'member';
+                    memDiv.setAttribute('data-id', member.id);
+                    memDiv.innerHTML = `
+                        <div class="member-avatar" style="background-color: ${member.color};"></div>
+                        <span class="member-name" style="color: ${member.color}; font-weight: bold;">
+                            ${member.name} ${member.badge ? `<span class="role-badge" style="background:${member.color}; color:#111;">${member.badge}</span>` : ''}
+                        </span>`;
+                    list.appendChild(memDiv);
+                });
+            });
+        }
+
+        /* ==========================================================================
+           3. OBSŁUGA OBSZARU MODERACJI I KLIKNIĘĆ MYSZY
+           ========================================================================== */
+        function initContextMenuListeners() {
+            const menu = document.getElementById('userContextMenu');
+
+            document.getElementById('onlineMembersList').addEventListener('contextmenu', function(e) {
+                const targetMember = e.target.closest('.member');
+                if(!targetMember) return;
                 
-                <div class="member-group">Dostępny — 10</div>
-                <div class="member"><div class="member-avatar" style="background-color: #5865f2;"></div><span class="member-name" style="color: #dbdee1;">AdviceBot <span class="role-badge" style="background: #5865f2; color:white;">✓ APL.</span></span></div>
-                <div class="member"><div class="member-avatar" style="background-color: #23a55a;"></div><span class="member-name" style="color: #dbdee1;">boht <span class="role-badge" style="background: #5865f2; color:white;">✓ APL.</span></span></div>
-                <div class="member"><div class="member-avatar" style="background-color: #49c261;"></div><span class="member-name" style="color: #dbdee1;">Dyno <span class="role-badge" style="background: #5865f2; color:white;">✓ APL.</span></span></div>
-                <div class="member"><div class="member-avatar" style="background-color: #00b0f4;"></div><span class="member-name" style="color: #dbdee1;">MEE6 <span class="role-badge" style="background: #5865f2; color:white;">✓ APL.</span></span></div>
-                <div class="member"><div class="member-avatar" style="background-color: #f23f43;"></div><span class="member-name" style="color: #dbdee1;">ProtectMe Bot <span class="role-badge" style="background: #5865f2; color:white;">✓ APL.</span></span></div>
-                <div class="member"><div class="member-avatar" style="background-color: #9b59b6;"></div><span class="member-name" style="color: #dbdee1;">Tickets <span class="role-badge" style="background: #5865f2; color:white;">✓ APL.</span></span></div>
-            `;
+                e.preventDefault();
+                targetedMemberId = targetMember.getAttribute('data-id');
+
+                // Wyświetl menu kontekstowe dokładnie w miejscu kursora
+                menu.style.left = `${e.clientX}px`;
+                menu.style.top = `${e.clientY}px`;
+                menu.style.display = 'block';
+            });
+
+            // Zamknij menu jeśli klikniesz gdziekolwiek indziej
+            document.addEventListener('click', function(e) {
+                if(!menu.contains(e.target)) { menu.style.display = 'none'; }
+            });
+        }
+
+        // AKCJA MODERACYJNA Z MENU
+        function moderationAction(actionType) {
+            if(myCurrentRole !== 'ADMIN') {
+                alert("Odmowa dostępu! Tylko Admin / Właściciel może używać tych narzędzi moderacyjnych.");
+                return;
+            }
+            
+            const foundIdx = mockMembers.findIndex(m => m.id === targetedMemberId);
+            if(foundIdx === -1) return;
+            const name = mockMembers[foundIdx].name;
+
+            if(actionType === 'wyrzucony z serwera' || actionType === 'zablokowany') {
+                alert(`Pomyślnie wykonano akcję: Użytkownik ${name} został ${actionType}!`);
+                mockMembers.splice(foundIdx, 1); // Usuń z serwera
+                updateMockUsers();
+            } else {
+                alert(`Użytkownik ${name} został pomyślnie ${actionType}.`);
+            }
+            document.getElementById('userContextMenu').style.display = 'none';
         }
     </script>
 </body>
