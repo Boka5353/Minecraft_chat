@@ -5,6 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CraftCube - Discord Web Live</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="loginOverlay" class="login-overlay">
+        <div class="login-box">
+            <h2>Zaloguj się do CraftCube</h2>
+            <p class="login-tip">
+                Konta testowe do wpisania:<br>
+                Admin: <b>boka</b> / hasło: <b>123</b><br>
+                Gracz: <b>kamil</b> / hasło: <b>xyz</b>
+            </p>
+            <input type="text" id="usernameInput" placeholder="Nazwa użytkownika (Login)..." value="boka" required>
+            <input type="password" id="passwordInput" placeholder="Hasło..." value="123" required>
+            <button onclick="checkLogin()" class="btn">Zaloguj się</button>
+        </div>
+    </div>
+
+    <div class="discord-container" style="display: none;" id="appContainer">
+        
+        <div class="server-sidebar">
+            <div class="server-icon active"><i class="fa-solid fa-cube"></i></div>
+            <div class="separator"></div>
+            <div class="server-icon"><i class="fa-solid fa-plus"></i></div>
+        </div>
+
+        <div class="channels-sidebar">
+            <div class="server-header">
+                <h3>CRAFTCUBE.PL</h3>
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            
+            <div class="channels-list" id="channelsList">
+                </div>
+
+            <div class="user-profile">
+                <div class="user-avatar"></div>
+                <div class="user-info">
+                    <span class="username" id="myUsername">Gość</span>
+                    <span class="user-tag" id="myRole">Ranga</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-area">
+            <div class="chat-header">
+                <h4 id="currentChannelName"><i class="fa-solid fa-hashtag"></i> lewele</h4>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                </div>
+
+            <div class="chat-input-area">
+                <div class="input-container">
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <input type="text" id="messageInput" placeholder="Napisz..." onkeypress="handleKeyPress(event)">
+                    <i class="fa-solid fa-face-smile"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="members-sidebar" id="onlineMembersList">
+            </div>
+
+    </div>
+
+    <script src="server.js"></script>
+</body>
+</html><!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CraftCube - Discord Web Live</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* ==========================================================================
            1. WYGLĄD INTERFEJSU DISCORDA (CSS)
