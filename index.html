@@ -67,7 +67,7 @@
             margin: 4px 0;
         }
 
-        /* PASEK KANAŁÓW Bocznych */
+        /* PASEK KANAŁÓW BOCHNYCH */
         .channels-sidebar {
             background-color: #2b2d31;
             width: 240px;
@@ -385,11 +385,12 @@
         <div class="login-box">
             <h2>Zaloguj się do CraftCube</h2>
             <p style="color: #949ba4; font-size: 13px; text-align: center; margin-bottom: 10px;">
-                Kliknij przycisk, aby wejść! Hasło nie jest sprawdzane.
+                Wpisz dowolny login i kliknij przycisk! Hasło nie jest sprawdzane.
             </p>
             <input type="text" id="usernameInput" placeholder="Nazwa użytkownika (Login)..." value="boka">
             <input type="password" id="passwordInput" placeholder="Hasło..." value="123">
-            <button onclick="wejdzDoAplikacji()" class="btn">Zaloguj się</button>
+            
+            <button type="button" onclick="wejdzDoAplikacji()" class="btn">Zaloguj się</button>
         </div>
     </div>
 
@@ -466,7 +467,7 @@
             { id: 'pomoc4', name: '📢 Pomoc 4', type: 'voice', category: 'Pomoc 13-20' }
         ];
 
-        // GWARANTOWANA FUNKCJA PRZEJŚCIA PO KLIKNIĘCIU PRZYCISKU
+        // TA FUNKCJA URUCHOMI SIĘ BEZ BŁĘDU I PRZEKIERUJE CIĘ DO DISCORDA
         function wejdzDoAplikacji() {
             const userIn = document.getElementById('usernameInput').value.trim();
             
@@ -479,11 +480,11 @@
                 myCurrentRole = "GRACZ";
             }
 
-            // Przełączanie ekranu (Ukryj logowanie, pokaż Discorda)
+            // Przełączanie widoku w przeglądarce (Ukryj logowanie, pokaż Discorda)
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('appContainer').style.display = 'flex';
             
-            // Wstawienie danych do profilu
+            // Wstawienie danych do profilu na dole ekranu
             document.getElementById('myUsername').innerText = userIn ? userIn : "Gość";
             document.getElementById('myRole').innerText = `Ranga: ${myCurrentRole}`;
 
